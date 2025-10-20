@@ -1,0 +1,17 @@
+{
+  "name": "OrderPlacedEvent",
+  "namespace": "com.ecommerce.microservices.order.event",
+  "type": "record",
+  "fields": [
+    {
+      "name": "orderNumber",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "name": "email",
+      "type": "string",
+      "default": ""
+    }
+  ]
+}

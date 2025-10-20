@@ -1,0 +1,87 @@
+services:
+  keycloak-postgres:
+    image: postgres:18
+    container_name: keycloak-postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: keycloak-postgres
+    volumes:
+      - keycloak_postgres_data:/var/lib/postgres/18/docker
+    networks:
+      - keycloak-network
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.4.0
+    container_name: keycloak
+    command:
+      - "start-dev"
+      - "--import-realm"
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: keycloak-postgres
+      DB_DATABASE: keycloak-postgres
+      DB_USER: admin
+      DB_PASSWORD: password
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: password
+    ports:
+      - "8181:8080"
+    depends_on:
+      - keycloak-postgres
+    volumes:
+      - ./docker/keycloak/realms:/opt/keycloak/data/import/
+    networks:
+      - keycloak-network
+
+#  loki:
+#    image: grafana/loki:main
+#    container_name: loki
+#    command:
+#      - "config-file=/etc/loki/local-config.yaml"
+#    ports:
+#      - "3100:3100"
+
+#  prometheus:
+#    image: prom/prometheus:v3.7.0
+#    container_name: prometheus
+#    ports:
+#      - "9090:9090"
+#    volumes:
+#      - .docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+#      - prometheus_data:/prometheus
+#    command:
+#      - "--config.file=/etc/prometheus/prometheus.yml"
+#      - "--storage.tsdb.path=/prometheus"
+#      - "--enable-feature=exemplar-storage"
+
+#  tempo:
+#    image: grafana/tempo:main
+#    container_name: tempo
+#    command:
+#      - "-config.file=/etc/tempo.yaml"
+#    volumes:
+#      - ./docker/tempo/tempo.yml:/etc/tempo.yaml:ro
+#      - ./docker/tempo/tempo-data:/tmp/tempo
+#    ports:
+#      - "3110:3100" # Tempo
+#      - "9411:9411" # zipkin
+
+#  grafana:
+#    image: grafana/grafana:10.1.0
+#    volumes:
+#      - ./docker/grafana:/etc/grafana/provisioning/datasources:ro
+#    environment:
+#      - GF_AUTH_ANONYMOUS_ENABLED=true
+#      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+#      - GF_AUTH_DISABLE_LOGIN_FORM=true
+#    ports:
+#      - "3000:3000"
+
+volumes:
+  keycloak_postgres_data:
+#  prometheus_data:
+
+networks:
+  keycloak-network:
+    driver: bridge

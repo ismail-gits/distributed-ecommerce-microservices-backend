@@ -1,0 +1,133 @@
+spring:
+  application:
+    name: api-gateway
+
+  # api-gateway config
+  cloud:
+    gateway:
+      routes:
+        - id: product-service
+          uri: lb://PRODUCT-SERVICE
+          predicates:
+            - Path=/api/v1/product/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: productService
+                fallbackUri: forward:/fallback/product-service
+
+        - id: product-service-docs
+          uri: lb://PRODUCT-SERVICE
+          predicates:
+            - Path=/aggregate/product-service/v3/api-docs
+          filters:
+            - RewritePath=/aggregate/product-service/v3/api-docs, /api-docs
+
+        - id: order-service
+          uri: lb://ORDER-SERVICE
+          predicates:
+            - Path=/api/v1/order/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: orderService
+                fallbackUri: forward:/fallback/order-service
+
+        - id: order-service-docs
+          uri: lb://ORDER-SERVICE
+          predicates:
+            - Path=/aggregate/order-service/v3/api-docs
+          filters:
+            - RewritePath=/aggregate/order-service/v3/api-docs, /api-docs
+
+        - id: inventory-service
+          uri: lb://INVENTORY-SERVICE
+          predicates:
+            - Path=/api/v1/inventory/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: inventoryService
+                fallbackUri: forward:/fallback/inventory-service
+
+        - id: inventory-service-docs
+          uri: lb://INVENTORY-SERVICE
+          predicates:
+            - Path=/aggregate/inventory-service/v3/api-docs
+          filters:
+            - RewritePath=/aggregate/inventory-service/v3/api-docs, /api-docs
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: "http://localhost:8181/realms/ecommerce-microservices-realm"
+
+# eureka client config
+eureka:
+  client:
+    service-url:
+      defaultZone: "http://localhost:8761/eureka"
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 2
+    lease-expiration-duration-in-seconds: 5
+
+server:
+  port: 8083
+
+logging:
+  level:
+    org.springframework.cloud.gateway: INFO
+    org.springframework.cloud.loadbalancer: DEBUG
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    urls-primary-name: product-service
+    urls:
+      - name: product-service
+        url: /aggregate/product-service/v3/api-docs
+      - name: order-service
+        url: /aggregate/order-service/v3/api-docs
+      - name: inventory-service
+        url: /aggregate/inventory-service/v3/api-docs
+  api-docs:
+    path: /api-docs
+
+management:
+  health:
+    circuitBreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+      circuitBreakers:
+        enabled: true
+
+# Resilience4j Properties
+resilience4j:
+  circuitBreaker:
+    configs:
+      default:
+        registerHealthIndicator: true
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 5s
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+  timelimiter:
+    configs:
+      default:
+        timeout-duration: 3s
+  retry:
+    configs:
+      default:
+        max-attempts: 3
+        wait-duration: 2s

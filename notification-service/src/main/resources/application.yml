@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: notification-service
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: ${spring.application.name}
+      key-deserializer: org.apache.kafka.common.serialization.LongDeserializer
+      value-deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer
+      properties:
+        spring.json:
+          trusted.packages: com.ecommerce.microservices.*
+        schema:
+          registry:
+            url: "http://127.0.0.1:8085"
+        specific:
+          avro:
+            reader: true
+
+  mail:
+    host: "sandbox.smtp.mailtrap.io"
+    port: 2525
+    username: 7ed378ee4c4289
+    password: 911c08b108d6d6
+
+kafka:
+  topic:
+    order-placed-topic: order-placed-topic
+
+server:
+  port: 8084

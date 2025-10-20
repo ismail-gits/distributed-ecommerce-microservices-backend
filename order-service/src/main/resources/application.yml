@@ -1,0 +1,93 @@
+spring:
+  application:
+    name: order-service
+
+  datasource:
+    url: "jdbc:postgresql://localhost:5432/order-service?currentSchema=public"
+    username: admin
+    password: password
+
+  jpa:
+    hibernate.ddl-auto: none # None, as the migrations will be done using flyway
+    show-sql: true
+    properties:
+      hibernate.format_sql: false
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.LongSerializer
+      value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+      properties:
+        schema:
+          registry:
+            url: "http://127.0.0.1:8085"
+
+server:
+  port: 8081
+
+logging:
+  level:
+    org.hibernate:
+      SQL: DEBUG
+      type.descriptor.sql.BasicBinder: TRACE
+
+inventory.service:
+  url: "http://localhost:8082"
+
+eureka:
+  client:
+    service-url:
+      defaultZone: "http://localhost:8761/eureka/"
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 2
+    lease-expiration-duration-in-seconds: 5
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /api-docs
+
+management:
+  health:
+    circuitBreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+      circuitBreakers:
+        enabled: true
+
+# Resilience4j Properties
+resilience4j:
+  circuitBreaker:
+    instances:
+      inventory:
+        registerHealthIndicator: true
+        event-consumer-buffer-size: 10
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 5
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 5s
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+  timelimiter:
+    instances:
+      inventory:
+        timeout-duration: 3s
+  retry:
+    instances:
+      inventory:
+        max-attempts: 3
+        wait-duration: 2s
+
+kafka:
+  topic:
+    order-placed-topic: order-placed-topic

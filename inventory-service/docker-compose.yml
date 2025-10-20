@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:18
+    container_name: inventory-postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: inventory-service
+    ports:
+      - "5433:5432"
+    volumes:
+      - inventory_postgres_data:/var/lib/postgresql/18/docker
+
+volumes:
+  inventory_postgres_data:
