@@ -191,10 +191,10 @@ mvn spring-boot:run
 ### 5. Verify Services
 
 - **Eureka Dashboard**: http://localhost:8761
-- **API Gateway**: http://localhost:9000
-- **Product Service Swagger**: http://localhost:9000/api/product/swagger-ui.html
-- **Order Service Swagger**: http://localhost:9000/api/order/swagger-ui.html
-- **Inventory Service Swagger**: http://localhost:9000/api/inventory/swagger-ui.html
+- **API Gateway**: http://localhost:8083
+- **Product Service Swagger**: http://localhost:8083/api/product/swagger-ui.html
+- **Order Service Swagger**: http://localhost:8083/api/order/swagger-ui.html
+- **Inventory Service Swagger**: http://localhost:8083/api/inventory/swagger-ui.html
 
 ## 📡 API Endpoints
 
