@@ -25,12 +25,12 @@ This project implements a microservices-based e-commerce platform with the follo
 
 ## 🚀 Services
 
-### 1. **API Gateway** (Port: 9000)
+### 1. **API Gateway** (Port: 8083)
 - Single entry point for all client requests
 - Route management and load balancing
 - Circuit breaker pattern with fallback responses
 - Request/response filtering and transformation
-- Security configuration with Spring Security
+- Security configuration with Keycloak
 
 ### 2. **Discovery Service** (Port: 8761)
 - Netflix Eureka Server for service registration and discovery
@@ -58,7 +58,7 @@ This project implements a microservices-based e-commerce platform with the follo
 - PostgreSQL database with pre-populated test data
 - Flyway database version control
 
-### 6. **Notification Service**
+### 6. **Notification Service** (Port: 8084)
 - Asynchronous event-driven notifications
 - Kafka consumer for order placement events
 - Email notification integration
